@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Select-String -Path \"C:\\\\xampp82\\\\htdocs\\\\colegio\\\\controles\\\\genera_chequera_pdf.php\" -Pattern \"require_once|colegiadoEnvioChequera|Logic\" | Select-Object -First 15 | ForEach-Object { $_.LineNumber.ToString\\(\\) + \": \" + $_.Line.Trim\\(\\) })",
+      "PowerShell(C:/xampp82/php/php.exe -l \"C:\\\\xampp82\\\\htdocs\\\\colegio\\\\controles\\\\usuariorol_app_form.php\" 2>&1)",
+      "PowerShell(C:/xampp82/php/php.exe -l \"C:\\\\xampp82\\\\htdocs\\\\colegio\\\\controles\\\\datosDebitoAutomatico\\\\genera_archivos.php\" 2>&1)"
+    ]
+  }
+}
