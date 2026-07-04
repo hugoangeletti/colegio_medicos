@@ -89,31 +89,6 @@ if (isset($_GET['idColegiado'])) {
                     </div>
                     <div class="col-md-7">
                         <?php
-                        //busco si estan las imagenes para cargar en la tabla
-                        $hayArchivos = FALSE;
-                        $fileFoto = rellenarCeros($matricula, 8).'.jpg';
-                        $fileFirma = rellenarCeros($matricula, 8).'.bmp';
-                        if ($tituloDigital == 1) {
-                            $fileTitulo = rellenarCeros($matricula, 8).'.pdf';
-                        } else {
-                            $fileTitulo = NULL;
-                        }
-                        $foto = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Fotos/".$fileFoto, "rb");
-                        if ($foto) {
-                            $firma = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Firmas/".$fileFirma, "rb");
-                            if ($firma) {
-                                if (isset($fileTitulo)) {
-                                    $titulo = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Titulos/".$fileTitulo, "r");
-                                    if ($titulo) {
-                                        $hayArchivos = TRUE;        
-                                    }
-                                } else {
-                                    $hayArchivos = TRUE;
-                                }
-                            }
-                        } 
-                        ?>
-                            <?php
                             $tieneFotoFirma = FALSE;
                             if (isset($_GET['err'])) {
                             ?>
@@ -125,44 +100,48 @@ if (isset($_GET['idColegiado'])) {
                                 ?>
                                 <div class="col-md-5">
                                     <?php
-                                    //verifica que tenga foto y firma para mostrar
+                                    // Foto: si hay registro en BD se considera válida aunque FTP no esté disponible
                                     $resArchivos = $colegiadoArchivoLogic->obtenerColegiadoArchivo($idColegiado, '1');
                                     if ($resArchivos['estado'] && isset($resArchivos['datos'])){
                                         $archivos = $resArchivos['datos'];
                                         $fileFoto = trim($archivos['nombre']);
-                                        // insertamos la foto y firma
-                                        $foto = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Fotos/".$fileFoto, "rb");
-                                        if ($foto) {
-                                            $contents=stream_get_contents($foto);
-
-                                            $fotoVer = base64_encode($contents);
-                                            $tieneFotoFirma = TRUE;
+                                        $tieneFotoFirma = TRUE;
+                                        $fhFoto = @fopen("ftp://webcolmed:web.2017@192.168.2.50:21/Fotos/".$fileFoto, "rb");
+                                        if ($fhFoto) {
+                                            $fotoVer = base64_encode(stream_get_contents($fhFoto));
+                                            fclose($fhFoto);
                                             ?>
-                                        <img class="img img-thumbnail" style="height: 150px " src="data:image/jpg;base64,<?php echo $fotoVer; ?>" />
-                                        <br>Foto
-                                    <?php
+                                            <img class="img img-thumbnail" style="height: 150px" src="data:image/jpg;base64,<?php echo $fotoVer; ?>" />
+                                            <br>Foto
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <div class="alert alert-warning">Foto registrada<br><small>(no disponible en servidor)</small></div>
+                                            <?php
+                                        }
                                     }
-                                }
-                                ?>
+                                    ?>
                                 </div>
                                 <div class="col-md-5">
                                 <?php
+                                // Firma: misma lógica que foto
                                 $resArchivos = $colegiadoArchivoLogic->obtenerColegiadoArchivo($idColegiado, '2');
                                 if ($resArchivos['estado'] && isset($resArchivos['datos'])){
                                     $archivos = $resArchivos['datos'];
                                     $fileFirma = trim($archivos['nombre']);
-                                    $firma = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Firmas/".$fileFirma, "rb");
-                                    if ($firma) {
-                                        $contents=stream_get_contents($firma);
-                                        $firmaVer = base64_encode($contents);
-                                        $tieneFotoFirma = TRUE;
+                                    $tieneFotoFirma = TRUE;
+                                    $fhFirma = @fopen("ftp://webcolmed:web.2017@192.168.2.50:21/Firmas/".$fileFirma, "rb");
+                                    if ($fhFirma) {
+                                        $firmaVer = base64_encode(stream_get_contents($fhFirma));
+                                        fclose($fhFirma);
                                         ?>
                                         <img class="img img-thumbnail" src="data:image/jpg;base64,<?php echo $firmaVer; ?>" height="80" width="200" />
                                         <br>Firma
-        <!--                            <form  method="POST" action="colegiado_credencial.php">
-                                        <button type="submit" class="btn btn-info" name='volver' id='name'>Imprimir Credencial </button>
-                                    </form>-->
-                                <?php
+                                        <?php
+                                    } else {
+                                        ?>
+                                        <div class="alert alert-warning">Firma registrada<br><small>(no disponible en servidor)</small></div>
+                                        <?php
                                     }
                                 }
                                 ?>
@@ -174,18 +153,22 @@ if (isset($_GET['idColegiado'])) {
                                     if ($resArchivos['estado'] && isset($resArchivos['datos'])){
                                         $archivos = $resArchivos['datos'];
                                         $fileTitulo = trim($archivos['nombre']);
-                                        $titulo = @fopen ("ftp://webcolmed:web.2017@192.168.2.50:21/Titulos/".$fileTitulo, "rb");
-                                        if ($titulo) {
-                                            $tieneFotoFirma = TRUE;
+                                        $fhTitulo = @fopen("ftp://webcolmed:web.2017@192.168.2.50:21/Titulos/".$fileTitulo, "rb");
+                                        if ($fhTitulo) {
+                                            fclose($fhTitulo);
                                             ?>
                                             <div class="alert alert-success">Título cargado</div>
-                                        <?php
+                                            <?php
+                                        } else {
+                                            ?>
+                                            <div class="alert alert-warning">Título registrado<br><small>(no disponible en servidor)</small></div>
+                                            <?php
                                         }
                                     } else {
                                         $tieneFotoFirma = FALSE;
-                                    ?>
+                                        ?>
                                         <div class="alert alert-danger">Título NO INGRESADO</div>
-                                    <?php
+                                        <?php
                                     }
                                 }
                                 ?>
@@ -227,7 +210,7 @@ if (isset($_GET['idColegiado'])) {
                         ?>
                     </div>
                     <div class="col-md-12 text-right">
-                        <form id="siguiente" autocomplete="off" name="siguiente" style="display: <?php echo $display; ?>;" method="POST" onSubmit="" action="<?php echo $siguentePaso; ?>">
+                        <form id="siguiente" autocomplete="off" name="siguiente" style="display: <?php echo $display; ?>;" method="POST" onSubmit="" action="<?php echo $siguientePaso; ?>">
                             <div class="col-md-12 text-right">
                                 <button type="submit"  class="btn <?php echo $botonConfirma; ?> btn-lg" >Siguiente </button>
                             </div>

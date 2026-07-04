@@ -46,6 +46,11 @@
  /* TYPEAHEAD PUBLIC CLASS DEFINITION
   * ================================= */
 
+  // Quita tildes/diacríticos para que "CLINICA" coincida con "CLÍNICA"
+  function normalizeText(text) {
+    return (text || '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  }
+
   var Typeahead = function (element, options) {
     this.$element = $(element);
     this.options = $.extend({}, $.fn.typeahead.defaults, options);
@@ -176,18 +181,19 @@
 
     matcher: function (item) {
     var it = this.displayText(item);
-      return ~it.toLowerCase().indexOf(this.query.toLowerCase());
+      return ~normalizeText(it).indexOf(normalizeText(this.query));
     },
 
     sorter: function (items) {
       var beginswith = []
         , caseSensitive = []
         , caseInsensitive = []
-        , item;
+        , item
+        , normQuery = normalizeText(this.query);
 
       while ((item = items.shift())) {
         var it = this.displayText(item);
-        if (!it.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item);
+        if (!normalizeText(it).indexOf(normQuery)) beginswith.push(item);
         else if (~it.indexOf(this.query)) caseSensitive.push(item);
         else caseInsensitive.push(item);
       }

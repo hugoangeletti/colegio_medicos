@@ -93,7 +93,7 @@ require_once '../html/footer.php';
 <script language="JavaScript">
     $(function(){
         var nameIdMap = {};
-        $('#especialidad_buscar').typeahead({ 
+        $('#especialidad_buscar').typeahead({
                 source: function (query, process) {
                 return $.ajax({
                     dataType: "json",
@@ -105,15 +105,15 @@ require_once '../html/footer.php';
                     }
                 });
             },
-           
+
             minLength: 3,
             //maxItem:15,
-            
+
             updater: function (item) {
                 $('#idEspecialidad').val(nameIdMap[item]);
                 return item;
             }
-            
+
         });
         function getOptionsFromJson(json) {
              

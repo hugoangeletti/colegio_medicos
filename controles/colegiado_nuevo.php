@@ -177,6 +177,7 @@ if (isset($_POST['mensaje'])) {
     $tomo = NULL;
     $folio = NULL;
     
+    $colegiadoLogic = new colegiadoLogic();
     if ($porTipo) {
         $tomo = NULL;
         $tomoFolio = NULL;
@@ -185,7 +186,6 @@ if (isset($_POST['mensaje'])) {
         $tomoDesde = 1;
         $folioDesde = 1;
         if ($tipoIngreso == '?tipo=otro') {
-            $colegiadoLogic = new colegiadoLogic();
             $resTomoFolio = $colegiadoLogic->obtenerNuevoTomoFolioOtroDistrito();
             if ($resTomoFolio['estado']) {
 
